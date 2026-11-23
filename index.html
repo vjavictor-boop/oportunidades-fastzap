@@ -1,0 +1,427 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Oportunidades no FastZap</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo:wdth,wght@62..125,400..800&display=swap">
+<style>
+/* Layout: faixa de título marinho → planilha → quadro DF x MG → histórico.
+   Ousadia num lugar só: o título condensado na faixa. O resto é quieto. */
+:root {
+  --navy: #12284a;          /* faixa do título */
+  --navy-ink: #e9eef7;      /* texto sobre a faixa */
+  --navy-soft: #a9b8d1;
+  --page: #f4f6f9;          /* fundo frio, levemente azulado */
+  --surface: #ffffff;
+  --ink: #16202e;
+  --ink-2: #4f5b6d;
+  --muted: #7d8798;
+  --line: #e3e7ee;
+  --axis: #c6cdd8;
+  --df: #2a78d6;            /* Distrito Federal */
+  --mg: #eb6834;            /* Minas Gerais */
+  --df-wash: rgba(42, 120, 214, 0.07);
+  --mg-wash: rgba(235, 104, 52, 0.07);
+  --btn: #ffffff;
+  --btn-ink: #12284a;
+  --erro: #c23a3a;
+  --font: "Archivo", system-ui, -apple-system, "Segoe UI", sans-serif;
+}
+@media (prefers-color-scheme: dark) {
+  :root {
+    --navy: #0f1d33; --navy-ink: #e9eef7; --navy-soft: #8fa0bd;
+    --page: #0c121b; --surface: #141c28; --ink: #e8ecf2; --ink-2: #b3bccb; --muted: #7d8798;
+    --line: #243042; --axis: #34415a; --df: #3987e5; --mg: #d95926;
+    --df-wash: rgba(57, 135, 229, 0.12); --mg-wash: rgba(217, 89, 38, 0.12);
+    --btn: #e9eef7; --btn-ink: #0f1d33; --erro: #e66767;
+    color-scheme: dark;
+  }
+}
+* { box-sizing: border-box; }
+html, body { margin: 0; }
+body { background: var(--page); color: var(--ink); font-family: var(--font); font-size: 15px; line-height: 1.45; }
+
+/* faixa do título */
+.faixa {
+  background: var(--navy); color: var(--navy-ink);
+  padding-top: calc(env(safe-area-inset-top, 0px) + 28px); padding-bottom: 72px;
+}
+.miolo {
+  max-width: 1280px; margin: 0 auto;
+  padding-left: max(20px, env(safe-area-inset-left, 0px));
+  padding-right: max(20px, env(safe-area-inset-right, 0px));
+}
+.faixa .miolo { display: flex; justify-content: space-between; align-items: flex-end; gap: 20px; flex-wrap: wrap; }
+h1 {
+  margin: 0; font-stretch: 68%; font-weight: 800; letter-spacing: .01em;
+  font-size: clamp(34px, 6.4vw, 68px); line-height: .95; text-wrap: balance;
+}
+.contexto { margin: 12px 0 0; color: var(--navy-soft); font-size: 15px; }
+.contexto strong { color: var(--navy-ink); font-weight: 600; }
+.acoes { display: flex; flex-direction: column; align-items: flex-end; gap: 8px; }
+#atualizar {
+  display: inline-flex; align-items: center; gap: 8px; font: inherit; font-weight: 650; font-size: 15px;
+  background: var(--btn); color: var(--btn-ink); border: 0; border-radius: 999px; padding: 11px 20px; cursor: pointer;
+}
+#atualizar svg { width: 17px; height: 17px; }
+#atualizar:disabled { opacity: .7; cursor: progress; }
+#atualizar.girando svg { animation: gira .8s linear infinite; }
+@keyframes gira { to { transform: rotate(360deg); } }
+@media (prefers-reduced-motion: reduce) { #atualizar.girando svg { animation: none; } }
+:focus-visible { outline: 2px solid var(--df); outline-offset: 2px; }
+.faixa :focus-visible { outline-color: var(--navy-ink); }
+.status { font-size: 13px; color: var(--navy-soft); margin: 0; text-align: right; }
+.status.erro { color: #ffb4b4; }
+
+/* conteúdo sobe sobre a faixa */
+main.miolo { margin-top: -48px; display: grid; gap: 20px; padding-bottom: 40px; }
+.bloco { background: var(--surface); border-radius: 16px; padding: 22px 24px; min-width: 0; box-shadow: 0 1px 0 var(--line); }
+.bloco > header { display: flex; justify-content: space-between; align-items: flex-end; gap: 12px; flex-wrap: wrap; margin-bottom: 14px; }
+h2 { margin: 0; font-size: 19px; font-weight: 700; font-stretch: 85%; }
+.nota { margin: 2px 0 0; color: var(--ink-2); font-size: 13.5px; }
+
+/* planilha */
+.tabela-wrap { overflow-x: auto; margin: 0 -24px; padding: 0 24px; }
+table { width: 100%; border-collapse: collapse; font-variant-numeric: tabular-nums; font-size: 14px; }
+th { font-size: 12.5px; font-weight: 600; color: var(--ink-2); text-align: right; padding: 8px 12px; border-bottom: 1px solid var(--axis); white-space: nowrap; }
+th:first-child { text-align: left; padding-left: 0; }
+td { padding: 11px 12px; text-align: right; border-bottom: 1px solid var(--line); white-space: nowrap; }
+td:first-child { text-align: left; padding-left: 0; }
+tr.regiao td { font-weight: 650; font-size: 15.5px; padding-top: 15px; padding-bottom: 15px; }
+tr.regiao.df td { background: var(--df-wash); }
+tr.regiao.mg td { background: var(--mg-wash); }
+tr.regiao td:first-child { border-left: 4px solid var(--c); padding-left: 10px; }
+tr.regiao.df { --c: var(--df); }
+tr.regiao.mg { --c: var(--mg); }
+.nome { display: flex; align-items: center; gap: 10px; }
+.nome small { display: block; font-size: 12px; color: var(--muted); font-weight: 400; }
+.seta { width: 26px; height: 26px; border-radius: 50%; border: 1px solid var(--axis); background: var(--surface); color: var(--ink); cursor: pointer; display: inline-grid; place-items: center; flex: none; padding: 0; }
+.seta svg { width: 12px; height: 12px; transition: transform .15s; }
+.seta[aria-expanded="true"] svg { transform: rotate(90deg); }
+.seta-vazia { width: 26px; flex: none; }
+td.alerta { color: var(--erro); font-weight: 650; }
+
+/* quadro DF x MG */
+.quadro { display: grid; grid-template-columns: minmax(150px, 1.1fr) auto minmax(120px, 2.2fr) auto minmax(80px, .8fr); align-items: center; column-gap: 16px; font-variant-numeric: tabular-nums; }
+.quadro .cab { font-size: 12.5px; color: var(--ink-2); font-weight: 600; padding-bottom: 8px; border-bottom: 1px solid var(--axis); }
+.quadro .cel { padding: 12px 0; border-bottom: 1px solid var(--line); }
+.quadro .rot { font-weight: 600; }
+.quadro .num { text-align: right; font-weight: 650; font-size: 16px; }
+.quadro .tot { text-align: right; color: var(--ink-2); }
+.quadro .num::before { content: ""; display: inline-block; width: 8px; height: 8px; border-radius: 50%; margin-right: 8px; vertical-align: 1px; }
+.quadro .num.df::before { background: var(--df); }
+.quadro .num.mg::before { background: var(--mg); }
+.split { display: flex; height: 10px; border-radius: 5px; overflow: hidden; gap: 2px; background: var(--line); }
+.split span { display: block; height: 100%; }
+.split .a { background: var(--df); border-radius: 5px 0 0 5px; }
+.split .b { background: var(--mg); border-radius: 0 5px 5px 0; }
+.dif { font-size: 13px; color: var(--ink-2); }
+.legenda { display: flex; gap: 18px; font-size: 13.5px; color: var(--ink-2); flex-wrap: wrap; }
+.dot { display: inline-block; width: 10px; height: 10px; border-radius: 50%; margin-right: 6px; vertical-align: -1px; }
+.dot.df { background: var(--df); } .dot.mg { background: var(--mg); }
+@media (max-width: 640px) {
+  .quadro { grid-template-columns: 1fr auto auto; row-gap: 0; }
+  .quadro .barra, .quadro .cab.barra { display: none; }
+  .quadro .tot, .quadro .cab.tot { display: none; }
+}
+
+/* gráficos */
+.grade { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(460px, 100%), 1fr)); gap: 20px; }
+.grafico { position: relative; height: 280px; }
+.grafico.alto { height: 320px; }
+.vazio { color: var(--ink-2); font-size: 13.5px; margin: 10px 0 0; }
+select { font: inherit; font-size: 14px; color: var(--ink); background: var(--surface); border: 1px solid var(--axis); border-radius: 8px; padding: 7px 10px; }
+label.campo { display: flex; align-items: center; gap: 8px; font-size: 13.5px; color: var(--ink-2); }
+footer { color: var(--muted); font-size: 12.5px; }
+</style>
+</head>
+<body>
+<div class="faixa">
+  <div class="miolo">
+    <div>
+      <h1>OPORTUNIDADES NO FASTZAP</h1>
+      <p class="contexto"><strong>Distrito Federal</strong> e <strong>Minas Gerais</strong> em <span id="mesNome">…</span></p>
+    </div>
+    <div class="acoes">
+      <button id="atualizar" type="button">
+        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M20 11a8 8 0 1 0-2.3 5.7M20 4v7h-7" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        <span>Atualizar</span>
+      </button>
+      <p class="status" id="status" aria-live="polite">Carregando…</p>
+    </div>
+  </div>
+</div>
+
+<main class="miolo">
+  <section class="bloco" aria-labelledby="t-planilha">
+    <header>
+      <div>
+        <h2 id="t-planilha">Planilha</h2>
+        <p class="nota">Abra cada estado para ver franqueados e lojas.</p>
+      </div>
+    </header>
+    <div class="tabela-wrap">
+      <table id="tabela">
+        <thead>
+          <tr>
+            <th scope="col">Nome</th><th scope="col">Atendimentos</th><th scope="col">Telefones únicos</th><th scope="col">Ativos</th>
+            <th scope="col">Não atendidos</th><th scope="col">Em negociação</th><th scope="col">TME</th><th scope="col">TMA</th>
+          </tr>
+        </thead>
+        <tbody></tbody>
+      </table>
+    </div>
+  </section>
+
+  <section class="bloco" aria-labelledby="t-quadro">
+    <header>
+      <div>
+        <h2 id="t-quadro">Distrito Federal x Minas Gerais</h2>
+        <p class="nota">A barra mostra quanto de cada indicador vem de cada estado.</p>
+      </div>
+      <div class="legenda"><span><span class="dot df"></span>Distrito Federal</span><span><span class="dot mg"></span>Minas Gerais</span></div>
+    </header>
+    <div class="quadro" id="quadro"></div>
+  </section>
+
+  <div class="grade">
+    <section class="bloco" aria-labelledby="t-mes">
+      <header><div><h2 id="t-mes">Por mês</h2><p class="nota">Atendimentos nos últimos 12 meses</p></div></header>
+      <div class="grafico"><canvas id="gMes" role="img" aria-label="Atendimentos por mês, DF e MG"></canvas></div>
+    </section>
+    <section class="bloco" aria-labelledby="t-dia">
+      <header><div><h2 id="t-dia">Por dia</h2><p class="nota">Novos atendimentos em cada dia</p></div></header>
+      <div class="grafico"><canvas id="gDia" role="img" aria-label="Novos atendimentos por dia, DF e MG"></canvas></div>
+      <p class="vazio" id="vDia" hidden></p>
+    </section>
+  </div>
+
+  <section class="bloco" aria-labelledby="t-hora">
+    <header>
+      <div><h2 id="t-hora">Pendentes por horário</h2><p class="nota">Atendimentos não atendidos em cada coleta (de hora em hora)</p></div>
+      <label class="campo" for="diaPend">Dia <select id="diaPend"></select></label>
+    </header>
+    <div class="grafico alto"><canvas id="gHora" role="img" aria-label="Pendentes por horário, DF e MG"></canvas></div>
+    <p class="vazio" id="vHora" hidden></p>
+  </section>
+
+  <footer>Fonte: painel FastZap (Dashboard CVC). TME é o tempo médio de espera e TMA o tempo médio de atendimento. O histórico é coletado automaticamente a cada hora.</footer>
+</main>
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.6/dist/chart.umd.min.js"></script>
+<script>
+const API = 'https://wpbeta-2029.sysprime.com.br/employee_score/';
+const TZ = 'America/Sao_Paulo';
+const REGIOES = { DF: 'Distrito Federal', MG: 'Minas Gerais' };
+const CARGOS = { franchisee: 'Franqueado', organization: 'Loja', master_franchisee: 'Master franqueado' };
+const $ = (s) => document.querySelector(s);
+const nf = new Intl.NumberFormat('pt-BR');
+const pf = new Intl.NumberFormat('pt-BR', { style: 'percent', maximumFractionDigits: 0 });
+const n = (v) => Number(v) || 0;
+const esc = (s) => String(s).replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+const estado = { regioes: null, mes: null, hist: { historico: [], meses: [] }, graficos: {} };
+
+const hm = (seg) => { seg = Math.round(n(seg)); return `${Math.floor(seg / 3600)}h ${String(Math.floor((seg % 3600) / 60)).padStart(2, '0')}m`; };
+function mesAtual() { return new Intl.DateTimeFormat('en-CA', { timeZone: TZ, year: 'numeric', month: '2-digit' }).format(new Date()).slice(0, 7); }
+function nomeMes(mes, curto = true) {
+  const [a, m] = mes.split('-').map(Number);
+  return new Date(Date.UTC(a, m - 1, 15)).toLocaleDateString('pt-BR', { month: curto ? 'short' : 'long', year: curto ? '2-digit' : 'numeric', timeZone: 'UTC' }).replace('.', '');
+}
+const diaLocal = (iso) => new Intl.DateTimeFormat('en-CA', { timeZone: TZ, year: 'numeric', month: '2-digit', day: '2-digit' }).format(new Date(iso));
+const horaLocal = (iso) => new Intl.DateTimeFormat('pt-BR', { timeZone: TZ, hour: '2-digit', minute: '2-digit' }).format(new Date(iso));
+const rotDia = (d) => { const [, m, dd] = d.split('-'); return `${dd}/${m}`; };
+const cor = (v) => getComputedStyle(document.documentElement).getPropertyValue(v).trim();
+
+// mesma estrutura do data.json: região -> franqueados -> lojas
+const V = (v) => ({ tot: +v.total_atendimentos, uni: +v.total_atendimentos_telefones_unicos, ati: +v.atendimentos_ativos, pend: +v.atendimentos_nao_atendidos, neg: +v.atendimentos_em_negociacao, tme: Math.round(+v.tme), tma: Math.round(+v.tna) });
+function enxugar(no) {
+  let filhos = no.children || [];
+  if (filhos.length === 1 && filhos[0].rule_type === 'master_franchisee' && filhos[0].name === no.name) filhos = filhos[0].children || [];
+  const out = { n: no.name, t: no.rule_type, v: V(no.values) };
+  if (filhos.length) out.c = filhos.map(enxugar).sort((a, b) => b.v.tot - a.v.tot);
+  return out;
+}
+async function buscarAoVivo(mes) {
+  const r = await fetch(`${API}?month=${mes}&user_id=387&permission=master_franchisee`, { cache: 'no-store' });
+  if (!r.ok) throw new Error(`o FastZap respondeu ${r.status}`);
+  let j = await r.json(); j = Array.isArray(j) ? j : [j];
+  const out = {};
+  for (const g of j[0]?.children || []) {
+    const reg = (g.children || []).find((c) => c.rule_type === 'regional_manager');
+    if (reg && REGIOES[g.values.uf]) out[g.values.uf] = enxugar(reg);
+  }
+  if (!out.DF && !out.MG) throw new Error('não encontrei DF e MG na resposta');
+  return out;
+}
+
+// ---------- planilha ----------
+const setaSvg = '<svg viewBox="0 0 12 12" aria-hidden="true"><path d="M4 2l4 4-4 4" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>';
+let seq = 0;
+function linhas(no, nivel, uf, pai) {
+  const id = `r${++seq}`;
+  const tr = document.createElement('tr');
+  tr.dataset.id = id; tr.dataset.chave = `${uf}/${no.n}/${nivel}`;
+  if (pai) { tr.dataset.pai = pai; tr.hidden = true; }
+  const regiao = nivel === 0;
+  if (regiao) tr.className = `regiao ${uf.toLowerCase()}`;
+  const nome = regiao ? REGIOES[uf] : no.n;
+  const v = no.v;
+  const taxaPend = v.tot ? v.pend / v.tot : 0;
+  tr.innerHTML = `
+    <td><div class="nome" style="padding-left:${Math.max(0, nivel) * 22}px">
+      ${no.c?.length ? `<button class="seta" type="button" aria-expanded="false" aria-label="Abrir ${esc(nome)}">${setaSvg}</button>` : '<span class="seta-vazia"></span>'}
+      ${regiao ? `<span>${esc(nome)}</span>` : `<div>${esc(nome)}<small>${CARGOS[no.t] || ''}</small></div>`}
+    </div></td>
+    <td>${nf.format(v.tot)}</td><td>${nf.format(v.uni)}</td><td>${nf.format(v.ati)}</td>
+    <td${!regiao && v.tot >= 20 && taxaPend >= 0.05 ? ' class="alerta" title="5% ou mais sem atendimento"' : ''}>${nf.format(v.pend)}</td>
+    <td>${nf.format(v.neg)}</td><td>${hm(v.tme)}</td><td>${hm(v.tma)}</td>`;
+  const out = [tr];
+  for (const f of no.c || []) out.push(...linhas(f, nivel + 1, uf, id));
+  return out;
+}
+function alternar(btn, abrir) {
+  const tr = btn.closest('tr');
+  abrir = abrir ?? btn.getAttribute('aria-expanded') !== 'true';
+  btn.setAttribute('aria-expanded', abrir);
+  const fechar = (id) => document.querySelectorAll(`#tabela tr[data-pai="${id}"]`).forEach((f) => {
+    f.hidden = true;
+    const b = f.querySelector('.seta');
+    if (b) { b.setAttribute('aria-expanded', 'false'); fechar(f.dataset.id); }
+  });
+  if (abrir) document.querySelectorAll(`#tabela tr[data-pai="${tr.dataset.id}"]`).forEach((f) => { f.hidden = false; });
+  else fechar(tr.dataset.id);
+}
+function renderTabela() {
+  const tb = $('#tabela tbody');
+  const abertos = new Set([...tb.querySelectorAll('.seta[aria-expanded="true"]')].map((b) => b.closest('tr').dataset.chave));
+  tb.innerHTML = ''; seq = 0;
+  for (const uf of ['DF', 'MG']) if (estado.regioes[uf]) linhas(estado.regioes[uf], 0, uf).forEach((tr) => tb.appendChild(tr));
+  tb.querySelectorAll('tr').forEach((tr) => { const b = tr.querySelector('.seta'); if (b && abertos.has(tr.dataset.chave) && !tr.hidden) alternar(b, true); });
+}
+
+// ---------- quadro DF x MG ----------
+function renderQuadro() {
+  const a = estado.regioes.DF?.v || {}, b = estado.regioes.MG?.v || {};
+  const ta = n(a.tot), tb = n(b.tot);
+  const linhasQ = [
+    ['Atendimentos', 'tot'], ['Telefones únicos', 'uni'], ['Atendimentos ativos', 'ati'],
+    ['Não atendidos', 'pend'], ['Em negociação', 'neg'], ['TME (espera)', 'tme', true], ['TMA (atendimento)', 'tma', true],
+  ];
+  let html = '<div class="cab">Indicador</div><div class="cab" style="text-align:right">DF</div><div class="cab barra">Participação</div><div class="cab" style="text-align:right">MG</div><div class="cab tot">Total</div>';
+  for (const [rot, c, tempo] of linhasQ) {
+    const va = n(a[c]), vb = n(b[c]);
+    let barra, total;
+    if (tempo) {
+      const media = (va * ta + vb * tb) / Math.max(1, ta + tb);
+      const maisRapido = va <= vb ? 'DF' : 'MG';
+      barra = `<span class="dif">${maisRapido} é ${hm(Math.abs(va - vb))} mais rápido</span>`;
+      total = `média ${hm(media)}`;
+    } else {
+      const s = va + vb, pa = s ? va / s : 0.5;
+      barra = `<div class="split" title="DF ${pf.format(pa)} · MG ${pf.format(1 - pa)}"><span class="a" style="width:${pa * 100}%"></span><span class="b" style="width:${(1 - pa) * 100}%"></span></div>`;
+      total = nf.format(s);
+    }
+    const f = tempo ? hm : (x) => nf.format(x);
+    html += `<div class="cel rot">${rot}</div><div class="cel num df">${f(va)}</div><div class="cel barra">${barra}</div><div class="cel num mg">${f(vb)}</div><div class="cel tot">${total}</div>`;
+  }
+  $('#quadro').innerHTML = html;
+}
+
+// ---------- gráficos ----------
+function opcoes() {
+  const muted = cor('--muted');
+  return {
+    responsive: true, maintainAspectRatio: false, animation: false,
+    interaction: { mode: 'index', intersect: false },
+    plugins: {
+      legend: { position: 'top', align: 'start', labels: { color: cor('--ink-2'), font: { family: 'Archivo', size: 13 }, usePointStyle: true, pointStyle: 'circle', boxWidth: 8, boxHeight: 8, padding: 16 } },
+      tooltip: { titleFont: { family: 'Archivo' }, bodyFont: { family: 'Archivo' }, callbacks: { label: (c) => ` ${c.dataset.label}: ${c.parsed.y == null ? 'sem dado' : nf.format(c.parsed.y)}` } },
+    },
+    scales: {
+      x: { grid: { display: false }, border: { color: cor('--axis') }, ticks: { color: muted, font: { family: 'Archivo' } } },
+      y: { beginAtZero: true, grid: { color: cor('--line') }, border: { display: false }, ticks: { color: muted, font: { family: 'Archivo' }, callback: (v) => nf.format(v) } },
+    },
+  };
+}
+const barra = (label, data, c) => ({ label, data, backgroundColor: cor(c), borderRadius: 4, borderSkipped: 'start', maxBarThickness: 22, categoryPercentage: 0.7, barPercentage: 0.9 });
+const linha = (label, data, c) => ({ label, data, borderColor: cor(c), backgroundColor: cor(c), borderWidth: 2, pointRadius: 4, pointHoverRadius: 6, pointBorderColor: cor('--surface'), pointBorderWidth: 2, tension: 0.25, spanGaps: true });
+function desenhar(id, cfg) { estado.graficos[id]?.destroy(); if (typeof Chart !== 'undefined') estado.graficos[id] = new Chart(document.getElementById(id), cfg); }
+
+function renderMensal() {
+  const m = estado.hist.meses.map((x) => ({ ...x }));
+  const atual = m.find((x) => x.mes === estado.mes);
+  if (atual && estado.regioes) { atual.DF = estado.regioes.DF?.v.tot ?? atual.DF; atual.MG = estado.regioes.MG?.v.tot ?? atual.MG; }
+  desenhar('gMes', { type: 'bar', data: { labels: m.map((x) => nomeMes(x.mes)), datasets: [barra('Distrito Federal', m.map((x) => x.DF), '--df'), barra('Minas Gerais', m.map((x) => x.MG), '--mg')] }, options: opcoes() });
+}
+function renderDiario() {
+  const mapa = new Map();
+  for (const s of estado.hist.historico) mapa.set(diaLocal(s.t), s);
+  const dias = [...mapa.entries()].sort((a, b) => a[0].localeCompare(b[0])).slice(-32);
+  const labels = [], df = [], mg = [];
+  dias.forEach(([dia, s], i) => {
+    const ant = dias[i - 1]?.[1];
+    const val = (uf) => {
+      const at = s.r[uf]?.tot;
+      if (at == null) return null;
+      if (ant && ant.m === s.m && ant.r[uf]?.tot != null) return Math.max(0, at - ant.r[uf].tot);
+      return dia.endsWith('-01') ? at : null;
+    };
+    labels.push(rotDia(dia)); df.push(val('DF')); mg.push(val('MG'));
+  });
+  const ok = df.some((v) => v != null) || mg.some((v) => v != null);
+  $('#vDia').hidden = ok;
+  $('#vDia').textContent = ok ? '' : 'Este gráfico começa a aparecer a partir do segundo dia de coletas, porque compara o fechamento de um dia com o do anterior.';
+  desenhar('gDia', { type: 'bar', data: { labels, datasets: [barra('Distrito Federal', df, '--df'), barra('Minas Gerais', mg, '--mg')] }, options: opcoes() });
+}
+function preencherDias() {
+  const sel = $('#diaPend'), atual = sel.value;
+  const dias = [...new Set(estado.hist.historico.map((s) => diaLocal(s.t)))].sort().reverse();
+  sel.innerHTML = dias.map((d) => `<option value="${d}">${rotDia(d)}</option>`).join('');
+  if (dias.includes(atual)) sel.value = atual;
+}
+function renderHora() {
+  const dia = $('#diaPend').value;
+  const pts = estado.hist.historico.filter((s) => diaLocal(s.t) === dia);
+  $('#vHora').hidden = pts.length > 0;
+  $('#vHora').textContent = pts.length ? '' : 'Ainda não há coletas. A primeira aparece depois da próxima coleta automática.';
+  desenhar('gHora', { type: 'line', data: { labels: pts.map((s) => horaLocal(s.t)), datasets: [linha('Distrito Federal', pts.map((s) => s.r.DF?.pend ?? null), '--df'), linha('Minas Gerais', pts.map((s) => s.r.MG?.pend ?? null), '--mg')] }, options: opcoes() });
+}
+const renderGraficos = () => { renderMensal(); renderDiario(); renderHora(); };
+
+// ---------- atualizar ----------
+async function atualizar() {
+  const btn = $('#atualizar'), st = $('#status');
+  btn.disabled = true; btn.classList.add('girando');
+  st.className = 'status'; st.textContent = 'Buscando dados no FastZap…';
+  estado.mes = mesAtual();
+  $('#mesNome').textContent = nomeMes(estado.mes, false);
+  const hist = fetch(`data.json?v=${Date.now()}`, { cache: 'no-store' }).then((r) => r.ok ? r.json() : null).catch(() => null);
+  let aviso = '';
+  try {
+    estado.regioes = await buscarAoVivo(estado.mes);
+  } catch (e) {
+    const h = await hist;
+    if (!h?.regioes) { st.className = 'status erro'; st.textContent = `Não foi possível atualizar: ${e.message}. Tente de novo em instantes.`; btn.disabled = false; btn.classList.remove('girando'); return; }
+    estado.regioes = h.regioes;
+    aviso = ` O FastZap não respondeu (${e.message}); mostrando a última coleta.`;
+  }
+  const h = await hist;
+  if (h) estado.hist = h;
+  renderTabela(); renderQuadro(); preencherDias(); renderGraficos();
+  const agora = new Date().toLocaleTimeString('pt-BR', { timeZone: TZ, hour: '2-digit', minute: '2-digit' });
+  st.className = aviso ? 'status erro' : 'status';
+  st.textContent = aviso ? aviso.trim() : `Atualizado às ${agora}`;
+  btn.disabled = false; btn.classList.remove('girando');
+}
+$('#atualizar').addEventListener('click', atualizar);
+$('#diaPend').addEventListener('change', renderHora);
+$('#tabela').addEventListener('click', (e) => { const b = e.target.closest('.seta'); if (b) alternar(b); });
+matchMedia('(prefers-color-scheme: dark)').addEventListener('change', () => { if (estado.regioes) renderGraficos(); });
+setInterval(atualizar, 10 * 60 * 1000);
+atualizar();
+</script>
+</body>
+</html>
