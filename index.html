@@ -104,6 +104,29 @@ tr.regiao.mg { --c: var(--mg); }
 .seta-vazia { width: 26px; flex: none; }
 td.alerta { color: var(--erro); font-weight: 650; }
 
+/* celular: cada estado (e cada franqueado/loja) vira um bloco com os números um embaixo do outro */
+@media (max-width: 760px) {
+  .bloco { padding: 18px 16px; }
+  .tabela-wrap { overflow: visible; margin: 0; padding: 0; }
+  #tabela, #tabela tbody { display: block; }
+  #tabela thead { display: none; }
+  #tabela tr { display: grid; grid-template-columns: 1fr 1fr; gap: 8px 18px; padding: 14px; border-bottom: 1px solid var(--line); }
+  #tabela tr[hidden] { display: none; }
+  #tabela td { display: flex; flex-direction: column; align-items: flex-start; gap: 1px; padding: 0; border: 0; text-align: left; white-space: normal; background: none; font-size: 15px; }
+  #tabela td::before { content: attr(data-label); font-size: 12px; font-weight: 400; color: var(--ink-2); }
+  #tabela td:first-child { grid-column: 1 / -1; padding: 0 0 4px; border: 0; }
+  #tabela td:first-child::before { content: none; }
+  #tabela .nome { padding-left: 0 !important; }
+  #tabela tr.regiao { background: var(--df-wash); border-left: 4px solid var(--c); border-radius: 12px; margin-top: 12px; border-bottom: 0; }
+  #tabela tr.regiao.mg { background: var(--mg-wash); }
+  #tabela tr.regiao:first-child { margin-top: 0; }
+  #tabela tr.regiao td { padding: 0; font-size: 16px; }
+  #tabela tr.regiao td:first-child { font-size: 18px; padding-bottom: 6px; }
+  #tabela tr.n1 { margin-left: 12px; border-left: 2px solid var(--line); }
+  #tabela tr.n2 { margin-left: 26px; border-left: 2px solid var(--line); }
+  #tabela tr.n1 td, #tabela tr.n2 td { font-size: 14px; }
+}
+
 /* quadro DF x MG */
 .quadro { display: grid; grid-template-columns: minmax(150px, 1.1fr) auto minmax(120px, 2.2fr) auto minmax(80px, .8fr); align-items: center; column-gap: 16px; font-variant-numeric: tabular-nums; }
 .quadro .cab { font-size: 12.5px; color: var(--ink-2); font-weight: 600; padding-bottom: 8px; border-bottom: 1px solid var(--axis); }
@@ -266,7 +289,7 @@ function linhas(no, nivel, uf, pai) {
   tr.dataset.id = id; tr.dataset.chave = `${uf}/${no.n}/${nivel}`;
   if (pai) { tr.dataset.pai = pai; tr.hidden = true; }
   const regiao = nivel === 0;
-  if (regiao) tr.className = `regiao ${uf.toLowerCase()}`;
+  tr.className = regiao ? `regiao ${uf.toLowerCase()}` : `n${Math.min(nivel, 2)}`;
   const nome = regiao ? REGIOES[uf] : no.n;
   const v = no.v;
   const taxaPend = v.tot ? v.pend / v.tot : 0;
@@ -275,9 +298,9 @@ function linhas(no, nivel, uf, pai) {
       ${no.c?.length ? `<button class="seta" type="button" aria-expanded="false" aria-label="Abrir ${esc(nome)}">${setaSvg}</button>` : '<span class="seta-vazia"></span>'}
       ${regiao ? `<span>${esc(nome)}</span>` : `<div>${esc(nome)}<small>${CARGOS[no.t] || ''}</small></div>`}
     </div></td>
-    <td>${nf.format(v.tot)}</td><td>${nf.format(v.uni)}</td><td>${nf.format(v.ati)}</td>
-    <td${!regiao && v.tot >= 20 && taxaPend >= 0.05 ? ' class="alerta" title="5% ou mais sem atendimento"' : ''}>${nf.format(v.pend)}</td>
-    <td>${nf.format(v.neg)}</td><td>${hm(v.tme)}</td><td>${hm(v.tma)}</td>`;
+    <td data-label="Atendimentos">${nf.format(v.tot)}</td><td data-label="Telefones únicos">${nf.format(v.uni)}</td><td data-label="Ativos">${nf.format(v.ati)}</td>
+    <td data-label="Não atendidos"${!regiao && v.tot >= 20 && taxaPend >= 0.05 ? ' class="alerta" title="5% ou mais sem atendimento"' : ''}>${nf.format(v.pend)}</td>
+    <td data-label="Em negociação">${nf.format(v.neg)}</td><td data-label="TME">${hm(v.tme)}</td><td data-label="TMA">${hm(v.tma)}</td>`;
   const out = [tr];
   for (const f of no.c || []) out.push(...linhas(f, nivel + 1, uf, id));
   return out;
