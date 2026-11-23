@@ -88,7 +88,7 @@ const dados = {
   mes,
   regioes: Object.fromEntries(Object.entries(reg).map(([uf, no]) => [uf, enxugar(no)])),
   meses,
-  historico: histFinal.map((s) => ({ t: s.t, m: s.m, r: Object.fromEntries(Object.entries(s.r).filter(([uf]) => uf === 'DF' || uf === 'MG').map(([uf, v]) => [uf, { tot: v.tot, pend: v.pend }])) })),
+  historico: histFinal.map((s) => ({ t: s.t, m: s.m, r: Object.fromEntries(Object.entries(s.r).filter(([uf]) => uf === 'DF' || uf === 'MG').map(([uf, v]) => [uf, { tot: v.tot, pend: v.pend, tme: v.tme }])) })),
 };
 await writeFile(arq('data.json'), JSON.stringify(dados));
 console.log(`OK ${snap.t} — DF ${dados.regioes.DF?.v.tot} / MG ${dados.regioes.MG?.v.tot} — histórico: ${histFinal.length} coletas`);
