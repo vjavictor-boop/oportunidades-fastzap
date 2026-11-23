@@ -176,17 +176,6 @@ footer { color: var(--muted); font-size: 12.5px; }
     </div>
   </section>
 
-  <section class="bloco" aria-labelledby="t-quadro">
-    <header>
-      <div>
-        <h2 id="t-quadro">Distrito Federal x Minas Gerais</h2>
-        <p class="nota">A barra mostra quanto de cada indicador vem de cada estado.</p>
-      </div>
-      <div class="legenda"><span><span class="dot df"></span>Distrito Federal</span><span><span class="dot mg"></span>Minas Gerais</span></div>
-    </header>
-    <div class="quadro" id="quadro"></div>
-  </section>
-
   <div class="grade">
     <section class="bloco" aria-labelledby="t-mes">
       <header><div><h2 id="t-mes">Por mês</h2><p class="nota">Atendimentos nos últimos 12 meses</p></div></header>
@@ -206,6 +195,17 @@ footer { color: var(--muted); font-size: 12.5px; }
     </header>
     <div class="grafico alto"><canvas id="gHora" role="img" aria-label="Pendentes por horário, DF e MG"></canvas></div>
     <p class="vazio" id="vHora" hidden></p>
+  </section>
+
+  <section class="bloco" aria-labelledby="t-quadro">
+    <header>
+      <div>
+        <h2 id="t-quadro">Distrito Federal x Minas Gerais</h2>
+        <p class="nota">A barra mostra quanto de cada indicador vem de cada estado.</p>
+      </div>
+      <div class="legenda"><span><span class="dot df"></span>Distrito Federal</span><span><span class="dot mg"></span>Minas Gerais</span></div>
+    </header>
+    <div class="quadro" id="quadro"></div>
   </section>
 
   <footer>Fonte: painel FastZap (Dashboard CVC). TME é o tempo médio de espera e TMA o tempo médio de atendimento. O histórico é coletado automaticamente a cada hora.</footer>
