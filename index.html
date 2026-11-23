@@ -398,8 +398,11 @@ function coleta24h() {
   let achada = null, dist = Infinity;
   for (const s of h) { const d = Math.abs(new Date(s.t) - alvo); if (d < dist) { dist = d; achada = s; } }
   if (dist <= 3 * 3600e3) return { s: achada };
-  const horas = (Date.now() - new Date(h[0].t)) / 3600e3;
-  return horas < 24 ? { falta: Math.ceil(24 - horas) } : { semColeta: true };
+  // Ainda sem 24h de histórico: compara com a coleta mais antiga do mês, se tiver pelo menos 1h.
+  const mes = mesAtual();
+  const antiga = h.find((s) => s.m === mes);
+  if (antiga && Date.now() - new Date(antiga.t) >= 3600e3) return { s: antiga, parcial: true };
+  return { falta: true };
 }
 // Menor é melhor para TME e para não atendidos.
 function variacao(agora, antes) {
@@ -414,13 +417,16 @@ function renderEvol() {
   const el = $('#evol'), vazio = $('#vEvol');
   const ref = coleta24h();
   let msg = '';
-  if (ref.falta) msg = `A comparação aparece quando o histórico completar 24 horas de coletas (faltam cerca de ${ref.falta}h).`;
-  else if (ref.semColeta) msg = 'Não há coleta de 24 horas atrás para comparar. A comparação volta na próxima coleta.';
+  if (ref.falta) msg = 'A comparação aparece depois da próxima coleta automática (de hora em hora).';
   else if (ref.s.m !== estado.mes) msg = 'Os números do FastZap zeram na virada do mês. A comparação volta 24 horas depois do início do mês.';
   vazio.hidden = !msg; vazio.textContent = msg;
   if (msg) { el.innerHTML = ''; $('#nEvol').textContent = 'Agora comparado com a coleta de 24 horas atrás.'; return; }
-  const quando = new Date(ref.s.t).toLocaleString('pt-BR', { timeZone: TZ, day: '2-digit', month: '2-digit', hour: '2-digit', minute: '2-digit' });
-  $('#nEvol').textContent = `Agora comparado com a coleta de ${quando}.`;
+  const quando = new Date(ref.s.t).toLocaleString('pt-BR', { timeZone: TZ, day: '2-digit', month: '2-digit', hour: '2-digit', minute: '2-digit' }).replace(',', ' às');
+  const horas = Math.round((Date.now() - new Date(ref.s.t)) / 3600e3);
+  $('#nEvol').textContent = ref.parcial
+    ? `Agora comparado com a primeira coleta, de ${quando} (${horas}h atrás). Quando o histórico completar 24h, a comparação passa a ser com 24 horas atrás.`
+    : `Agora comparado com a coleta de ${quando}.`;
+  const rotAntes = ref.parcial ? `Em ${quando}` : '24h atrás';
   const ufs = ['DF', 'MG'].filter((uf) => estado.regioes[uf]).sort((a, b) => estado.regioes[b].v.pend - estado.regioes[a].v.pend);
   el.innerHTML = ufs.map((uf) => {
     const v = estado.regioes[uf].v, a = ref.s.r[uf] || {};
@@ -428,7 +434,7 @@ function renderEvol() {
       const x = variacao(agora, antes);
       return `<div class="ind"><span class="qual">${qual}</span><span class="agora">${fmt(agora)}</span>
         ${x ? `<span class="var ${x.tipo}">${x.txt}</span>` : '<span class="var igual">sem dado</span>'}
-        <span class="antes">24h atrás: ${antes == null ? 'sem dado' : fmt(antes)}</span></div>`;
+        <span class="antes">${rotAntes}: ${antes == null ? 'sem dado' : fmt(antes)}</span></div>`;
     };
     return `<article class="evol-card ${uf.toLowerCase()}"><h3>${REGIOES[uf]}</h3>
       ${ind('TME (tempo médio de espera)', v.tme, a.tme ?? null, hm)}
