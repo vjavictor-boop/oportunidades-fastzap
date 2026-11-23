@@ -28,6 +28,8 @@
   --btn: #ffffff;
   --btn-ink: #12284a;
   --erro: #c23a3a;
+  --bom: #006300; --bom-wash: rgba(12, 163, 12, 0.10);
+  --ruim: #b52f2f; --ruim-wash: rgba(208, 59, 59, 0.10);
   --font: "Archivo", system-ui, -apple-system, "Segoe UI", sans-serif;
 }
 @media (prefers-color-scheme: dark) {
@@ -37,6 +39,7 @@
     --line: #243042; --axis: #34415a; --df: #3987e5; --mg: #d95926;
     --df-wash: rgba(57, 135, 229, 0.12); --mg-wash: rgba(217, 89, 38, 0.12);
     --btn: #e9eef7; --btn-ink: #0f1d33; --erro: #e66767;
+    --bom: #3ccb3c; --bom-wash: rgba(12, 163, 12, 0.18); --ruim: #f07a7a; --ruim-wash: rgba(208, 59, 59, 0.18);
     color-scheme: dark;
   }
 }
@@ -151,6 +154,20 @@ td.alerta { color: var(--erro); font-weight: 650; }
   .quadro .tot, .quadro .cab.tot { display: none; }
 }
 
+/* desempenho nas últimas 24h */
+.evol { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(320px, 100%), 1fr)); gap: 16px; }
+.evol-card { border: 1px solid var(--line); border-left: 4px solid var(--c); border-radius: 12px; padding: 16px 18px; display: grid; gap: 14px; }
+.evol-card.df { --c: var(--df); } .evol-card.mg { --c: var(--mg); }
+.evol-card h3 { margin: 0; font-size: 19px; font-weight: 700; font-stretch: 85%; }
+.ind { display: grid; grid-template-columns: 1fr auto; align-items: center; gap: 2px 12px; }
+.ind .qual { font-size: 14px; color: var(--ink-2); grid-column: 1 / -1; }
+.ind .agora { font-size: 26px; font-weight: 700; font-variant-numeric: tabular-nums; }
+.ind .antes { font-size: 13.5px; color: var(--muted); grid-column: 1 / -1; }
+.var { font-weight: 700; font-size: 15px; padding: 4px 12px; border-radius: 999px; white-space: nowrap; font-variant-numeric: tabular-nums; }
+.var.melhor { color: var(--bom); background: var(--bom-wash); }
+.var.pior { color: var(--ruim); background: var(--ruim-wash); }
+.var.igual { color: var(--ink-2); background: var(--line); }
+
 /* gráficos */
 .grade { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(460px, 100%), 1fr)); gap: 20px; }
 .grafico { position: relative; height: 280px; }
@@ -199,6 +216,17 @@ footer { color: var(--muted); font-size: 12.5px; }
     </div>
   </section>
 
+  <section class="bloco" aria-labelledby="t-evol">
+    <header>
+      <div>
+        <h2 id="t-evol">Desempenho nas últimas 24h</h2>
+        <p class="nota" id="nEvol">Agora comparado com a coleta de 24 horas atrás.</p>
+      </div>
+    </header>
+    <div class="evol" id="evol"></div>
+    <p class="vazio" id="vEvol" hidden></p>
+  </section>
+
   <div class="grade">
     <section class="bloco" aria-labelledby="t-mes">
       <header><div><h2 id="t-mes">Por mês</h2><p class="nota">Atendimentos nos últimos 12 meses</p></div></header>
@@ -223,7 +251,7 @@ footer { color: var(--muted); font-size: 12.5px; }
   <section class="bloco" aria-labelledby="t-quadro">
     <header>
       <div>
-        <h2 id="t-quadro">Distrito Federal x Minas Gerais</h2>
+        <h2 id="t-quadro">Distrito Federal &amp; Minas Gerais</h2>
         <p class="nota">A barra mostra quanto de cada indicador vem de cada estado.</p>
       </div>
       <div class="legenda"><span><span class="dot df"></span>Distrito Federal</span><span><span class="dot mg"></span>Minas Gerais</span></div>
@@ -343,8 +371,7 @@ function renderQuadro() {
     let barra, total;
     if (tempo) {
       const media = (va * ta + vb * tb) / Math.max(1, ta + tb);
-      const maisRapido = va <= vb ? 'DF' : 'MG';
-      barra = `<span class="dif">${maisRapido} é ${hm(Math.abs(va - vb))} mais rápido</span>`;
+      barra = '';
       total = `média ${hm(media)}`;
     } else {
       const s = va + vb, pa = s ? va / s : 0.5;
@@ -355,6 +382,53 @@ function renderQuadro() {
     html += `<div class="cel rot">${rot}</div><div class="cel num df">${f(va)}</div><div class="cel barra">${barra}</div><div class="cel num mg">${f(vb)}</div><div class="cel tot">${total}</div>`;
   }
   $('#quadro').innerHTML = html;
+}
+
+// ---------- desempenho nas últimas 24h ----------
+// Coleta mais próxima de 24h atrás (aceita até 3h de diferença, porque o agendamento do GitHub atrasa).
+function coleta24h() {
+  const h = estado.hist.historico || [];
+  if (!h.length) return { falta: 24 };
+  const alvo = Date.now() - 24 * 3600e3;
+  let achada = null, dist = Infinity;
+  for (const s of h) { const d = Math.abs(new Date(s.t) - alvo); if (d < dist) { dist = d; achada = s; } }
+  if (dist <= 3 * 3600e3) return { s: achada };
+  const horas = (Date.now() - new Date(h[0].t)) / 3600e3;
+  return horas < 24 ? { falta: Math.ceil(24 - horas) } : { semColeta: true };
+}
+// Menor é melhor para TME e para não atendidos.
+function variacao(agora, antes) {
+  if (antes == null || agora == null) return null;
+  if (antes === 0) return agora === 0 ? { tipo: 'igual', txt: 'igual' } : { tipo: 'pior', txt: `↑ de 0 para ${nf.format(agora)}` };
+  const p = (antes - agora) / antes;
+  if (Math.abs(p) < 0.005) return { tipo: 'igual', txt: 'igual' };
+  const pct = new Intl.NumberFormat('pt-BR', { maximumFractionDigits: Math.abs(p) < 0.1 ? 1 : 0 }).format(Math.abs(p) * 100);
+  return p > 0 ? { tipo: 'melhor', txt: `↓ ${pct}% melhor` } : { tipo: 'pior', txt: `↑ ${pct}% pior` };
+}
+function renderEvol() {
+  const el = $('#evol'), vazio = $('#vEvol');
+  const ref = coleta24h();
+  let msg = '';
+  if (ref.falta) msg = `A comparação aparece quando o histórico completar 24 horas de coletas (faltam cerca de ${ref.falta}h).`;
+  else if (ref.semColeta) msg = 'Não há coleta de 24 horas atrás para comparar. A comparação volta na próxima coleta.';
+  else if (ref.s.m !== estado.mes) msg = 'Os números do FastZap zeram na virada do mês. A comparação volta 24 horas depois do início do mês.';
+  vazio.hidden = !msg; vazio.textContent = msg;
+  if (msg) { el.innerHTML = ''; $('#nEvol').textContent = 'Agora comparado com a coleta de 24 horas atrás.'; return; }
+  const quando = new Date(ref.s.t).toLocaleString('pt-BR', { timeZone: TZ, day: '2-digit', month: '2-digit', hour: '2-digit', minute: '2-digit' });
+  $('#nEvol').textContent = `Agora comparado com a coleta de ${quando}.`;
+  const ufs = ['DF', 'MG'].filter((uf) => estado.regioes[uf]).sort((a, b) => estado.regioes[b].v.pend - estado.regioes[a].v.pend);
+  el.innerHTML = ufs.map((uf) => {
+    const v = estado.regioes[uf].v, a = ref.s.r[uf] || {};
+    const ind = (qual, agora, antes, fmt) => {
+      const x = variacao(agora, antes);
+      return `<div class="ind"><span class="qual">${qual}</span><span class="agora">${fmt(agora)}</span>
+        ${x ? `<span class="var ${x.tipo}">${x.txt}</span>` : '<span class="var igual">sem dado</span>'}
+        <span class="antes">24h atrás: ${antes == null ? 'sem dado' : fmt(antes)}</span></div>`;
+    };
+    return `<article class="evol-card ${uf.toLowerCase()}"><h3>${REGIOES[uf]}</h3>
+      ${ind('TME (tempo médio de espera)', v.tme, a.tme ?? null, hm)}
+      ${ind('Não atendidos (pendentes)', v.pend, a.pend ?? null, (x) => nf.format(x))}</article>`;
+  }).join('');
 }
 
 // ---------- gráficos ----------
@@ -436,7 +510,7 @@ async function atualizar() {
   }
   const h = await hist;
   if (h) estado.hist = h;
-  renderTabela(); renderQuadro(); preencherDias(); renderGraficos();
+  renderTabela(); renderEvol(); renderQuadro(); preencherDias(); renderGraficos();
   const agora = new Date().toLocaleTimeString('pt-BR', { timeZone: TZ, hour: '2-digit', minute: '2-digit' });
   st.className = aviso ? 'status erro' : 'status';
   st.textContent = aviso ? aviso.trim() : `Atualizado às ${agora}`;
