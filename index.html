@@ -80,8 +80,8 @@ h1 {
 main.miolo { margin-top: -48px; display: grid; gap: 20px; padding-bottom: 40px; }
 .bloco { background: var(--surface); border-radius: 16px; padding: 22px 24px; min-width: 0; box-shadow: 0 1px 0 var(--line); }
 .bloco > header { display: flex; justify-content: space-between; align-items: flex-end; gap: 12px; flex-wrap: wrap; margin-bottom: 14px; }
-h2 { margin: 0; font-size: 19px; font-weight: 700; font-stretch: 85%; }
-.nota { margin: 2px 0 0; color: var(--ink-2); font-size: 13.5px; }
+h2 { margin: 0; font-size: clamp(22px, 2.6vw, 26px); font-weight: 750; font-stretch: 85%; line-height: 1.15; }
+.nota { margin: 4px 0 0; color: var(--ink-2); font-size: 16px; }
 
 /* planilha */
 .tabela-wrap { overflow-x: auto; margin: 0 -24px; padding: 0 24px; }
@@ -182,8 +182,8 @@ footer { color: var(--muted); font-size: 12.5px; }
   <section class="bloco" aria-labelledby="t-planilha">
     <header>
       <div>
-        <h2 id="t-planilha">Planilha</h2>
-        <p class="nota">Abra cada estado para ver franqueados e lojas.</p>
+        <h2 id="t-planilha">Resumo</h2>
+        <p class="nota">Clique para abrir os detalhes.</p>
       </div>
     </header>
     <div class="tabela-wrap">
