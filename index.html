@@ -176,6 +176,7 @@ td.alerta { color: var(--erro); font-weight: 650; }
 select { font: inherit; font-size: 14px; color: var(--ink); background: var(--surface); border: 1px solid var(--axis); border-radius: 8px; padding: 7px 10px; }
 label.campo { display: flex; align-items: center; gap: 8px; font-size: 13.5px; color: var(--ink-2); }
 footer { color: var(--muted); font-size: 12.5px; }
+.obs { margin: 14px 0 0; padding-left: 18px; color: var(--muted); font-size: 12.5px; display: grid; gap: 2px; }
 </style>
 </head>
 <body>
@@ -225,6 +226,10 @@ footer { color: var(--muted); font-size: 12.5px; }
     </header>
     <div class="evol" id="evol"></div>
     <p class="vazio" id="vEvol" hidden></p>
+    <ul class="obs">
+      <li>O TME é a média do mês inteiro, porque é isso que o FastZap informa. Então a variação de um dia para o outro tende a ser pequena, e fica menor ainda no fim do mês.</li>
+      <li>Na virada do mês os números do FastZap zeram. Nas primeiras 24 horas de cada mês o bloco avisa isso em vez de mostrar uma porcentagem enganosa.</li>
+    </ul>
   </section>
 
   <div class="grade">
@@ -259,7 +264,7 @@ footer { color: var(--muted); font-size: 12.5px; }
     <div class="quadro" id="quadro"></div>
   </section>
 
-  <footer>Fonte: painel FastZap (Dashboard CVC). TME é o tempo médio de espera e TMA o tempo médio de atendimento. O histórico é coletado automaticamente a cada hora.</footer>
+  <footer>Fonte: painel FastZap (Dashboard CVC). TME é o tempo médio de espera e TMA o tempo médio de atendimento. O histórico é coletado automaticamente a cada hora. © Victor Almeida</footer>
 </main>
 
 <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.6/dist/chart.umd.min.js"></script>
