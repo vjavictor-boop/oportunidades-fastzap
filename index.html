@@ -143,7 +143,7 @@ footer { color: var(--muted); font-size: 12.5px; }
   <div class="miolo">
     <div>
       <h1>OPORTUNIDADES NO FASTZAP</h1>
-      <p class="contexto"><strong>Distrito Federal</strong> e <strong>Minas Gerais</strong> em <span id="mesNome">…</span></p>
+      <p class="contexto"><strong>MASTER FRANQUIA CLÁUDIO VILA NOVA</strong></p>
     </div>
     <div class="acoes">
       <button id="atualizar" type="button">
@@ -397,7 +397,6 @@ async function atualizar() {
   btn.disabled = true; btn.classList.add('girando');
   st.className = 'status'; st.textContent = 'Buscando dados no FastZap…';
   estado.mes = mesAtual();
-  $('#mesNome').textContent = nomeMes(estado.mes, false);
   const hist = fetch(`data.json?v=${Date.now()}`, { cache: 'no-store' }).then((r) => r.ok ? r.json() : null).catch(() => null);
   let aviso = '';
   try {
