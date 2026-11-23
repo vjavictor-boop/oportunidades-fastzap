@@ -190,8 +190,8 @@ footer { color: var(--muted); font-size: 12.5px; }
       <table id="tabela">
         <thead>
           <tr>
-            <th scope="col">Nome</th><th scope="col">Atendimentos</th><th scope="col">Telefones únicos</th><th scope="col">Ativos</th>
-            <th scope="col">Não atendidos</th><th scope="col">Em negociação</th><th scope="col">TME</th><th scope="col">TMA</th>
+            <th scope="col">Nome</th><th scope="col" aria-sort="descending">Não atendidos ↓</th><th scope="col">Atendimentos</th><th scope="col">Ativos</th>
+            <th scope="col">Em negociação</th><th scope="col">TME</th><th scope="col">TMA</th><th scope="col">Telefones únicos</th>
           </tr>
         </thead>
         <tbody></tbody>
@@ -283,6 +283,8 @@ async function buscarAoVivo(mes) {
 // ---------- planilha ----------
 const setaSvg = '<svg viewBox="0 0 12 12" aria-hidden="true"><path d="M4 2l4 4-4 4" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>';
 let seq = 0;
+// mais não atendidos primeiro; empate decide pelo total de atendimentos
+const porPendentes = (lista) => [...lista].sort((a, b) => b.v.pend - a.v.pend || b.v.tot - a.v.tot);
 function linhas(no, nivel, uf, pai) {
   const id = `r${++seq}`;
   const tr = document.createElement('tr');
@@ -298,11 +300,12 @@ function linhas(no, nivel, uf, pai) {
       ${no.c?.length ? `<button class="seta" type="button" aria-expanded="false" aria-label="Abrir ${esc(nome)}">${setaSvg}</button>` : '<span class="seta-vazia"></span>'}
       ${regiao ? `<span>${esc(nome)}</span>` : `<div>${esc(nome)}<small>${CARGOS[no.t] || ''}</small></div>`}
     </div></td>
-    <td data-label="Atendimentos">${nf.format(v.tot)}</td><td data-label="Telefones únicos">${nf.format(v.uni)}</td><td data-label="Ativos">${nf.format(v.ati)}</td>
     <td data-label="Não atendidos"${!regiao && v.tot >= 20 && taxaPend >= 0.05 ? ' class="alerta" title="5% ou mais sem atendimento"' : ''}>${nf.format(v.pend)}</td>
-    <td data-label="Em negociação">${nf.format(v.neg)}</td><td data-label="TME">${hm(v.tme)}</td><td data-label="TMA">${hm(v.tma)}</td>`;
+    <td data-label="Atendimentos">${nf.format(v.tot)}</td><td data-label="Ativos">${nf.format(v.ati)}</td>
+    <td data-label="Em negociação">${nf.format(v.neg)}</td><td data-label="TME">${hm(v.tme)}</td><td data-label="TMA">${hm(v.tma)}</td>
+    <td data-label="Telefones únicos">${nf.format(v.uni)}</td>`;
   const out = [tr];
-  for (const f of no.c || []) out.push(...linhas(f, nivel + 1, uf, id));
+  for (const f of porPendentes(no.c || [])) out.push(...linhas(f, nivel + 1, uf, id));
   return out;
 }
 function alternar(btn, abrir) {
@@ -321,7 +324,8 @@ function renderTabela() {
   const tb = $('#tabela tbody');
   const abertos = new Set([...tb.querySelectorAll('.seta[aria-expanded="true"]')].map((b) => b.closest('tr').dataset.chave));
   tb.innerHTML = ''; seq = 0;
-  for (const uf of ['DF', 'MG']) if (estado.regioes[uf]) linhas(estado.regioes[uf], 0, uf).forEach((tr) => tb.appendChild(tr));
+  const ufs = ['DF', 'MG'].filter((uf) => estado.regioes[uf]).sort((a, b) => estado.regioes[b].v.pend - estado.regioes[a].v.pend);
+  for (const uf of ufs) linhas(estado.regioes[uf], 0, uf).forEach((tr) => tb.appendChild(tr));
   tb.querySelectorAll('tr').forEach((tr) => { const b = tr.querySelector('.seta'); if (b && abertos.has(tr.dataset.chave) && !tr.hidden) alternar(b, true); });
 }
 
@@ -330,8 +334,8 @@ function renderQuadro() {
   const a = estado.regioes.DF?.v || {}, b = estado.regioes.MG?.v || {};
   const ta = n(a.tot), tb = n(b.tot);
   const linhasQ = [
-    ['Atendimentos', 'tot'], ['Telefones únicos', 'uni'], ['Atendimentos ativos', 'ati'],
-    ['Não atendidos', 'pend'], ['Em negociação', 'neg'], ['TME (espera)', 'tme', true], ['TMA (atendimento)', 'tma', true],
+    ['Não atendidos', 'pend'], ['Atendimentos', 'tot'], ['Atendimentos ativos', 'ati'], ['Em negociação', 'neg'],
+    ['TME (espera)', 'tme', true], ['TMA (atendimento)', 'tma', true], ['Telefones únicos', 'uni'],
   ];
   let html = '<div class="cab">Indicador</div><div class="cab" style="text-align:right">DF</div><div class="cab barra">Participação</div><div class="cab" style="text-align:right">MG</div><div class="cab tot">Total</div>';
   for (const [rot, c, tempo] of linhasQ) {
