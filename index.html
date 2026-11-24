@@ -111,23 +111,23 @@ td.alerta { color: var(--erro); font-weight: 650; }
 @media (max-width: 760px) {
   .bloco { padding: 18px 16px; }
   .tabela-wrap { overflow: visible; margin: 0; padding: 0; }
-  #tabela, #tabela tbody { display: block; }
-  #tabela thead { display: none; }
-  #tabela tr { display: grid; grid-template-columns: 1fr 1fr; gap: 8px 18px; padding: 14px; border-bottom: 1px solid var(--line); }
-  #tabela tr[hidden] { display: none; }
-  #tabela td { display: flex; flex-direction: column; align-items: flex-start; gap: 1px; padding: 0; border: 0; text-align: left; white-space: normal; background: none; font-size: 15px; }
-  #tabela td::before { content: attr(data-label); font-size: 12px; font-weight: 400; color: var(--ink-2); }
-  #tabela td:first-child { grid-column: 1 / -1; padding: 0 0 4px; border: 0; }
-  #tabela td:first-child::before { content: none; }
-  #tabela .nome { padding-left: 0 !important; }
-  #tabela tr.regiao { background: var(--df-wash); border-left: 4px solid var(--c); border-radius: 12px; margin-top: 12px; border-bottom: 0; }
-  #tabela tr.regiao.mg { background: var(--mg-wash); }
-  #tabela tr.regiao:first-child { margin-top: 0; }
-  #tabela tr.regiao td { padding: 0; font-size: 16px; }
-  #tabela tr.regiao td:first-child { font-size: 18px; padding-bottom: 6px; }
-  #tabela tr.n1 { margin-left: 12px; border-left: 2px solid var(--line); }
-  #tabela tr.n2 { margin-left: 26px; border-left: 2px solid var(--line); }
-  #tabela tr.n1 td, #tabela tr.n2 td { font-size: 14px; }
+  .tabela, .tabela tbody { display: block; }
+  .tabela thead { display: none; }
+  .tabela tr { display: grid; grid-template-columns: 1fr 1fr; gap: 8px 18px; padding: 14px; border-bottom: 1px solid var(--line); }
+  .tabela tr[hidden] { display: none; }
+  .tabela td { display: flex; flex-direction: column; align-items: flex-start; gap: 1px; padding: 0; border: 0; text-align: left; white-space: normal; background: none; font-size: 15px; }
+  .tabela td::before { content: attr(data-label); font-size: 12px; font-weight: 400; color: var(--ink-2); }
+  .tabela td:first-child { grid-column: 1 / -1; padding: 0 0 4px; border: 0; }
+  .tabela td:first-child::before { content: none; }
+  .tabela .nome { padding-left: 0 !important; }
+  .tabela tr.regiao { background: var(--df-wash); border-left: 4px solid var(--c); border-radius: 12px; margin-top: 12px; border-bottom: 0; }
+  .tabela tr.regiao.mg { background: var(--mg-wash); }
+  .tabela tr.regiao:first-child { margin-top: 0; }
+  .tabela tr.regiao td { padding: 0; font-size: 16px; }
+  .tabela tr.regiao td:first-child { font-size: 18px; padding-bottom: 6px; }
+  .tabela tr.n1 { margin-left: 12px; border-left: 2px solid var(--line); }
+  .tabela tr.n2 { margin-left: 26px; border-left: 2px solid var(--line); }
+  .tabela tr.n1 td, .tabela tr.n2 td { font-size: 14px; }
 }
 
 /* quadro DF x MG */
@@ -197,24 +197,38 @@ footer { color: var(--muted); font-size: 12.5px; }
 </div>
 
 <main class="miolo">
-  <section class="bloco" aria-labelledby="t-planilha">
+  <section class="bloco" aria-labelledby="t-unico">
     <header>
       <div>
-        <h2 id="t-planilha">Resumo</h2>
-        <p class="nota">Clique para abrir os detalhes.</p>
+        <h2 id="t-unico">Número Único CVC</h2>
+        <p class="nota">Atendimentos com a chave “Atendimentos CVCzap” ligada. Clique para abrir os detalhes.</p>
       </div>
     </header>
-    <div class="tabela-wrap">
-      <table id="tabela">
-        <thead>
-          <tr>
-            <th scope="col">Nome</th><th scope="col" aria-sort="descending">Não atendidos ↓</th><th scope="col">Atendimentos</th><th scope="col">Ativos</th>
-            <th scope="col">Em negociação</th><th scope="col">TME</th><th scope="col">TMA</th><th scope="col">Telefones únicos</th>
-          </tr>
-        </thead>
-        <tbody></tbody>
-      </table>
-    </div>
+    <div class="tabela-wrap"><table class="tabela" id="tUnico"></table></div>
+  </section>
+
+  <section class="bloco" aria-labelledby="t-loja">
+    <header>
+      <div>
+        <h2 id="t-loja">Número Loja Filial</h2>
+        <p class="nota">Atendimentos com a chave “Atendimentos CVCzap” desligada. Clique para abrir os detalhes.</p>
+      </div>
+    </header>
+    <div class="tabela-wrap"><table class="tabela" id="tLoja"></table></div>
+  </section>
+
+  <section class="bloco" aria-labelledby="t-total">
+    <header>
+      <div>
+        <h2 id="t-total">Total geral</h2>
+        <p class="nota">Número Único CVC + Número Loja Filial. Clique para abrir os detalhes.</p>
+      </div>
+    </header>
+    <div class="tabela-wrap"><table class="tabela" id="tTotal"></table></div>
+    <ul class="obs">
+      <li>TME e TMA do total são a média dos dois, pesada pela quantidade de atendimentos de cada um.</li>
+      <li>Telefones únicos do total é a soma dos dois. Um cliente que falou pelos dois números conta duas vezes.</li>
+    </ul>
   </section>
 
   <section class="bloco" aria-labelledby="t-evol">
@@ -229,6 +243,7 @@ footer { color: var(--muted); font-size: 12.5px; }
     <ul class="obs">
       <li>O TME é a média do mês inteiro, porque é isso que o FastZap informa. Então a variação de um dia para o outro tende a ser pequena, e fica menor ainda no fim do mês.</li>
       <li>Na virada do mês os números do FastZap zeram. Nas primeiras 24 horas de cada mês o bloco avisa isso em vez de mostrar uma porcentagem enganosa.</li>
+      <li>Este bloco, os gráficos e o quadro do final usam o Total geral (Número Único CVC + Número Loja Filial).</li>
     </ul>
   </section>
 
@@ -269,7 +284,9 @@ footer { color: var(--muted); font-size: 12.5px; }
 
 <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.6/dist/chart.umd.min.js"></script>
 <script>
+// chave "Atendimentos CVCzap": desligada = employee_score (Loja Filial), ligada = employee_oficial_score (Número Único CVC)
 const API = 'https://wpbeta-2029.sysprime.com.br/employee_score/';
+const API_U = 'https://wpbeta-2029.sysprime.com.br/employee_oficial_score/';
 const TZ = 'America/Sao_Paulo';
 const REGIOES = { DF: 'Distrito Federal', MG: 'Minas Gerais' };
 const CARGOS = { franchisee: 'Franqueado', organization: 'Loja', master_franchisee: 'Master franqueado' };
@@ -300,8 +317,38 @@ function enxugar(no) {
   if (filhos.length) out.c = filhos.map(enxugar).sort((a, b) => b.v.tot - a.v.tot);
   return out;
 }
-async function buscarAoVivo(mes) {
-  const r = await fetch(`${API}?month=${mes}&user_id=387&permission=master_franchisee`, { cache: 'no-store' });
+// Soma duas árvores (Único + Loja). TME/TMA viram média pesada pelos atendimentos.
+function somarV(a, b) {
+  const tot = a.tot + b.tot;
+  const media = (k) => (tot ? Math.round((a[k] * a.tot + b[k] * b.tot) / tot) : 0);
+  return { tot, uni: a.uni + b.uni, ati: a.ati + b.ati, pend: a.pend + b.pend, neg: a.neg + b.neg, tme: media('tme'), tma: media('tma') };
+}
+function somarNo(a, b) {
+  if (!a) return b; if (!b) return a;
+  const out = { n: a.n, t: a.t, v: somarV(a.v, b.v) };
+  const mapa = new Map();
+  for (const f of [...(a.c || []), ...(b.c || [])]) { const k = `${f.t}|${f.n}`; mapa.set(k, somarNo(mapa.get(k), f)); }
+  if (mapa.size) out.c = [...mapa.values()];
+  return out;
+}
+function somarRegioes(a, b) {
+  const out = {};
+  for (const uf of Object.keys(REGIOES)) { const s = somarNo(a?.[uf], b?.[uf]); if (s) out[uf] = s; }
+  return out;
+}
+// histórico: só coletas que têm os dois conjuntos, já somadas
+function histTotal(h) {
+  return (h || []).filter((s) => s.u).map((s) => {
+    const r = {};
+    for (const uf of Object.keys(REGIOES)) {
+      const a = s.r[uf], b = s.u[uf];
+      if (a && b) { const tot = a.tot + b.tot; r[uf] = { tot, pend: a.pend + b.pend, tme: tot ? Math.round((a.tme * a.tot + b.tme * b.tot) / tot) : 0 }; }
+    }
+    return { t: s.t, m: s.m, r };
+  });
+}
+async function buscarAoVivo(mes, api = API) {
+  const r = await fetch(`${api}?month=${mes}&user_id=387&permission=master_franchisee`, { cache: 'no-store' });
   if (!r.ok) throw new Error(`o FastZap respondeu ${r.status}`);
   let j = await r.json(); j = Array.isArray(j) ? j : [j];
   const out = {};
@@ -342,23 +389,30 @@ function linhas(no, nivel, uf, pai) {
   return out;
 }
 function alternar(btn, abrir) {
-  const tr = btn.closest('tr');
+  const tr = btn.closest('tr'), tb = tr.closest('tbody');
   abrir = abrir ?? btn.getAttribute('aria-expanded') !== 'true';
   btn.setAttribute('aria-expanded', abrir);
-  const fechar = (id) => document.querySelectorAll(`#tabela tr[data-pai="${id}"]`).forEach((f) => {
+  const fechar = (id) => tb.querySelectorAll(`tr[data-pai="${id}"]`).forEach((f) => {
     f.hidden = true;
     const b = f.querySelector('.seta');
     if (b) { b.setAttribute('aria-expanded', 'false'); fechar(f.dataset.id); }
   });
-  if (abrir) document.querySelectorAll(`#tabela tr[data-pai="${tr.dataset.id}"]`).forEach((f) => { f.hidden = false; });
+  if (abrir) tb.querySelectorAll(`tr[data-pai="${tr.dataset.id}"]`).forEach((f) => { f.hidden = false; });
   else fechar(tr.dataset.id);
 }
-function renderTabela() {
-  const tb = $('#tabela tbody');
+const CABECALHO = `<thead><tr>
+  <th scope="col">Nome</th><th scope="col" aria-sort="descending">Não atendidos ↓</th><th scope="col">Atendimentos</th><th scope="col">Ativos</th>
+  <th scope="col">Em negociação</th><th scope="col">TME</th><th scope="col">TMA</th><th scope="col">Telefones únicos</th>
+</tr></thead><tbody></tbody>`;
+function renderTabela(sel, regioes) {
+  const tabela = $(sel);
+  if (!tabela.tBodies.length) tabela.innerHTML = CABECALHO;
+  const tb = tabela.tBodies[0];
   const abertos = new Set([...tb.querySelectorAll('.seta[aria-expanded="true"]')].map((b) => b.closest('tr').dataset.chave));
   tb.innerHTML = ''; seq = 0;
-  const ufs = ['DF', 'MG'].filter((uf) => estado.regioes[uf]).sort((a, b) => estado.regioes[b].v.pend - estado.regioes[a].v.pend);
-  for (const uf of ufs) linhas(estado.regioes[uf], 0, uf).forEach((tr) => tb.appendChild(tr));
+  if (!regioes) { tb.innerHTML = '<tr><td colspan="8" class="vazio">Sem dados no momento.</td></tr>'; return; }
+  const ufs = ['DF', 'MG'].filter((uf) => regioes[uf]).sort((a, b) => regioes[b].v.pend - regioes[a].v.pend);
+  for (const uf of ufs) linhas(regioes[uf], 0, uf).forEach((tr) => tb.appendChild(tr));
   tb.querySelectorAll('tr').forEach((tr) => { const b = tr.querySelector('.seta'); if (b && abertos.has(tr.dataset.chave) && !tr.hidden) alternar(b, true); });
 }
 
@@ -465,6 +519,8 @@ function desenhar(id, cfg) { estado.graficos[id]?.destroy(); if (typeof Chart !=
 function renderMensal() {
   const m = estado.hist.meses.map((x) => ({ ...x }));
   const atual = m.find((x) => x.mes === estado.mes);
+  // total = Loja Filial + Número Único (meses sem o Número Único ficam sem barra)
+  for (const x of m) for (const uf of ['DF', 'MG']) x[uf] = x[uf] != null && x[uf + 'u'] != null ? x[uf] + x[uf + 'u'] : null;
   if (atual && estado.regioes) { atual.DF = estado.regioes.DF?.v.tot ?? atual.DF; atual.MG = estado.regioes.MG?.v.tot ?? atual.MG; }
   desenhar('gMes', { type: 'bar', data: { labels: m.map((x) => nomeMes(x.mes)), datasets: [barra('Distrito Federal', m.map((x) => x.DF), '--df'), barra('Minas Gerais', m.map((x) => x.MG), '--mg')] }, options: opcoes() });
 }
@@ -511,17 +567,18 @@ async function atualizar() {
   estado.mes = mesAtual();
   const hist = fetch(`data.json?v=${Date.now()}`, { cache: 'no-store' }).then((r) => r.ok ? r.json() : null).catch(() => null);
   let aviso = '';
-  try {
-    estado.regioes = await buscarAoVivo(estado.mes);
-  } catch (e) {
-    const h = await hist;
-    if (!h?.regioes) { st.className = 'status erro'; st.textContent = `Não foi possível atualizar: ${e.message}. Tente de novo em instantes.`; btn.disabled = false; btn.classList.remove('girando'); return; }
-    estado.regioes = h.regioes;
-    aviso = ` O FastZap não respondeu (${e.message}); mostrando a última coleta.`;
-  }
+  const [rl, ru] = await Promise.allSettled([buscarAoVivo(estado.mes), buscarAoVivo(estado.mes, API_U)]);
   const h = await hist;
-  if (h) estado.hist = h;
-  renderTabela(); renderEvol(); renderQuadro(); preencherDias(); renderGraficos();
+  let loja = rl.value, unico = ru.value;
+  if (!loja || !unico) {
+    const erro = (rl.reason || ru.reason)?.message || 'erro desconhecido';
+    if (h?.regioes && h?.regioesU) { loja = h.regioes; unico = h.regioesU; aviso = ` O FastZap não respondeu (${erro}); mostrando a última coleta.`; }
+    else { st.className = 'status erro'; st.textContent = `Não foi possível atualizar: ${erro}. Tente de novo em instantes.`; btn.disabled = false; btn.classList.remove('girando'); return; }
+  }
+  estado.regioes = somarRegioes(loja, unico);
+  if (h) estado.hist = { ...h, historico: histTotal(h.historico) };
+  renderTabela('#tUnico', unico); renderTabela('#tLoja', loja); renderTabela('#tTotal', estado.regioes);
+  renderEvol(); renderQuadro(); preencherDias(); renderGraficos();
   const agora = new Date().toLocaleTimeString('pt-BR', { timeZone: TZ, hour: '2-digit', minute: '2-digit' });
   st.className = aviso ? 'status erro' : 'status';
   st.textContent = aviso ? aviso.trim() : `Atualizado às ${agora}`;
@@ -529,7 +586,7 @@ async function atualizar() {
 }
 $('#atualizar').addEventListener('click', atualizar);
 $('#diaPend').addEventListener('change', renderHora);
-$('#tabela').addEventListener('click', (e) => { const b = e.target.closest('.seta'); if (b) alternar(b); });
+document.querySelectorAll('.tabela').forEach((t) => t.addEventListener('click', (e) => { const b = e.target.closest('.seta'); if (b) alternar(b); }));
 matchMedia('(prefers-color-scheme: dark)').addEventListener('change', () => { if (estado.regioes) renderGraficos(); });
 setInterval(atualizar, 10 * 60 * 1000);
 atualizar();
